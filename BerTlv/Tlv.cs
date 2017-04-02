@@ -104,6 +104,15 @@ namespace BerTlv
         {
             for(int i = 0, start = 0; i < rawTlv.Length; start = i)
             {
+                //Make sure that any data up to end-of - file is all 0x00 or 0xFF padding bytes (Book 3 Annex B 1.1)
+                if ((rawTlv.Length > i) && ((rawTlv[i] == 0x00) || (rawTlv[i] == 0xFF)))
+                {
+                    int iPad = i;
+                    byte PaddedByte = rawTlv[i];
+                    while (rawTlv.Length > iPad && rawTlv[iPad] == PaddedByte) iPad++;
+                    if(iPad == rawTlv.Length) break;
+                }
+                
                 // parse Tag
                 bool constructedTlv = (rawTlv[i] & 0x20) != 0;
                 bool moreBytes = (rawTlv[i] & 0x1F) == 0x1F;
